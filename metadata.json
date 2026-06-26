@@ -1,0 +1,6 @@
+{
+  "name": "Babcia Gotuje",
+  "description": "Wysokiej klasy strona internetowa dla restauracji z tradycyjną polską kuchnią Babcia Gotuje, z systemem rezerwacji stolików i zamówień online.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
