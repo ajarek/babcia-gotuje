@@ -3,12 +3,12 @@ import { getAuth } from "firebase/auth"
 import { initializeFirestore } from "firebase/firestore"
 
 const firebaseConfig = {
-  apiKey: "AIzaSyBxT5tfdtdkqmUP_EdKyF3vO6K5VCP5Xic",
-  authDomain: "confident-freehold-vskkt.firebaseapp.com",
-  projectId: "confident-freehold-vskkt",
-  storageBucket: "confident-freehold-vskkt.firebasestorage.app",
-  messagingSenderId: "503766704011",
-  appId: "1:503766704011:web:e2ac85b7acaeb67c79998e",
+  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY || "",
+  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN || "",
+  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || "",
+  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET || "",
+  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID || "",
+  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID || "",
 }
 
 const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp()
