@@ -1,15 +1,29 @@
 "use client"
 
-import React from "react"
+import React, { useState } from "react"
 import { Calendar, Award } from "lucide-react"
 import { motion } from "motion/react"
-import Image from "next/image"
 
 interface HeroProps {
   onOpenReservation: () => void
 }
 
 export default function Hero({ onOpenReservation }: HeroProps) {
+  const [hasPlayedOnce, setHasPlayedOnce] = useState(false)
+  const [isReady, setIsReady] = useState(false)
+  const [isMuted, setIsMuted] = useState(true)
+  const videoRef = React.useRef<HTMLVideoElement | null>(null)
+
+  React.useEffect(() => {
+    if (!hasPlayedOnce && videoRef.current) {
+      videoRef.current
+        .play()
+        .catch(() => {
+          // autoplay may be blocked if sound is enabled before user interaction
+        })
+    }
+  }, [hasPlayedOnce])
+
   return (
     <section className='relative bg-[#FAF6F0] overflow-hidden text-[#2D241E] py-16 lg:py-24 border-b border-amber-900/10 font-sans'>
       {/* Visual background accents */}
@@ -121,15 +135,40 @@ export default function Hero({ onOpenReservation }: HeroProps) {
             className='lg:col-span-5 flex justify-center'
           >
             <div className='relative w-full max-w-[420px] aspect-square rounded-[40px] overflow-hidden shadow-2xl border-4 border-white rotate-2 bg-[#78350F]/5'>
-              {/* Elegant fallback rustic food image */}
-              <Image
-                src='https://previews.123rf.com/images/evgenyatamanenko/evgenyatamanenko2003/evgenyatamanenko200300069/141472889-happy-old-woman-granny-cooks-in-kitchen-kneads-dough-and-bakes-cookies.jpg'
-                alt='Tradycyjny polski obiad'
-                fill
+              <video
+                ref={videoRef}
+                src='/hero.mp4'
+                autoPlay={!hasPlayedOnce}
+                muted={isMuted}
+                playsInline
+                preload='auto'
                 className='w-full h-full object-cover'
-                sizes='(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw'
+                onCanPlay={() => setIsReady(true)}
+                onEnded={() => setHasPlayedOnce(true)}
               />
-              {/* Badge Overlay */}
+
+              {!isReady && (
+                <div className='absolute inset-0 bg-[#78350F]/20' />
+              )}
+
+              <button
+                type='button'
+                onClick={() => {
+                  setIsMuted((prevMuted) => !prevMuted)
+                  if (videoRef.current) {
+                    videoRef.current.muted = !isMuted
+                    videoRef.current
+                      .play()
+                      .catch(() => {
+                        // ignore
+                      })
+                  }
+                }}
+                className='absolute top-4 right-4 z-20 rounded-full bg-white/90 border border-amber-900/15 px-4 py-2 text-xs font-semibold text-amber-950 shadow-sm hover:bg-white'
+              >
+                {isMuted ? "Włącz dźwięk" : "Wyłącz dźwięk"}
+              </button>
+
               <div className='absolute bottom-6 left-6 right-6 bg-white/95 backdrop-blur-sm p-4 rounded-2xl border border-amber-900/10 shadow-lg flex items-center gap-3'>
                 <div className='w-10 h-10 bg-amber-100 rounded-full flex items-center justify-center text-xl'>
                   ❤️
