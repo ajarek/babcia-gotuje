@@ -6,7 +6,11 @@ import { Search, ShoppingCart, Leaf, Flame, HelpCircle } from "lucide-react"
 import { motion, AnimatePresence } from "motion/react"
 import Image from "next/image"
 
-export default function MenuSection() {
+type MenuSectionProps = {
+  onOpenCart?: () => void
+}
+
+export default function MenuSection({ onOpenCart }: MenuSectionProps) {
   const { menu, loadingMenu, addToCart } = useRestaurant()
   const [selectedCategory, setSelectedCategory] = useState<
     "all" | "soups" | "mains" | "desserts" | "drinks"
@@ -36,6 +40,7 @@ export default function MenuSection() {
 
   const handleAddToCart = (item: MenuItem) => {
     addToCart(item)
+    onOpenCart?.()
     setJustAddedId(item.id)
     setTimeout(() => {
       setJustAddedId(null)
