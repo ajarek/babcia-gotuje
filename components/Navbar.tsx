@@ -2,8 +2,8 @@
 
 import React, { useState } from 'react';
 import { useRestaurant } from '@/context/RestaurantContext';
-import { ShoppingBag, User as UserIcon, LogOut, ShieldCheck, CalendarRange, ListCollapse, BookOpenText } from 'lucide-react';
-import { motion } from 'motion/react';
+import { ShoppingBag, User as UserIcon, LogOut, ShieldCheck, CalendarRange, ListCollapse, BookOpenText, X } from 'lucide-react';
+import { motion, AnimatePresence } from 'motion/react';
 
 interface NavbarProps {
   onOpenAuth: () => void;
@@ -22,6 +22,7 @@ export default function Navbar({
 }: NavbarProps) {
   const { user, userRole, cart, logout, reservations, orders } = useRestaurant();
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const cartItemsCount = cart.reduce((sum, item) => sum + item.quantity, 0);
 
@@ -96,6 +97,14 @@ export default function Navbar({
               )}
             </button>
 
+            <button
+              onClick={() => setMobileMenuOpen(true)}
+              className="md:hidden p-2.5 text-amber-950 hover:bg-amber-900/5 rounded-full transition"
+              aria-label="Otwórz menu"
+            >
+              <ListCollapse size={22} />
+            </button>
+
             {/* Auth Dropdown or trigger */}
             <div className="relative">
               {user ? (
@@ -125,7 +134,7 @@ export default function Navbar({
                         </div>
 
                         {/* Order stats */}
-                        <div className="px-4 py-1.5 text-xs text-amber-950/80 space-y-1 bg-amber-500/5 py-2 mb-2">
+                        <div className="px-4 py-2 text-xs text-amber-950/80 space-y-1 bg-amber-500/5 mb-2">
                           <div className="flex justify-between">
                             <span>Aktywne zamówienia:</span>
                             <span className="font-bold text-[#78350F]">{orders.filter(o => o.status !== 'delivered' && o.status !== 'cancelled').length}</span>
@@ -181,6 +190,136 @@ export default function Navbar({
 
         </div>
       </div>
+
+      <AnimatePresence>
+        {mobileMenuOpen && (
+          <>
+            <motion.div
+              className="fixed inset-0 z-40 bg-black/25 backdrop-blur-sm"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setMobileMenuOpen(false)}
+            />
+            <motion.div
+              className="fixed inset-0 right-0 z-[100] w-full max-w-[310px] h-screen bg-[#FAF6F0] border-l border-amber-900/10 shadow-2xl backdrop-blur-xl overflow-y-auto"
+              initial={{ x: '100%' }}
+              animate={{ x: 0 }}
+              exit={{ x: '100%' }}
+              transition={{ type: 'spring', stiffness: 260, damping: 28 }}
+            >
+              <div className="flex items-center justify-between px-5 py-4 border-b border-amber-900/10">
+                <div>
+                  <p className="text-xs uppercase tracking-[0.25em] text-amber-900/60 font-bold">Szybkie Menu</p>
+                  <p className="text-base font-semibold text-[#4A2E1A]">Babcia Gotuje</p>
+                </div>
+                <button
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="p-2 rounded-full text-amber-950 hover:bg-amber-900/5 transition"
+                  aria-label="Zamknij menu"
+                >
+                  <X size={22} />
+                </button>
+              </div>
+
+              <div className="px-5 py-6 space-y-6">
+                <nav className="space-y-3">
+                  <a
+                    href="#karta-menu"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="block rounded-2xl px-4 py-3 bg-white border border-amber-900/10 text-[#4A2E1A] font-semibold shadow-sm hover:bg-amber-50 transition"
+                  >
+                    Karta Menu
+                  </a>
+                  <button
+                    onClick={() => {
+                      setMobileMenuOpen(false);
+                      onOpenReservation();
+                    }}
+                    className="w-full text-left rounded-2xl px-4 py-3 bg-[#78350F] text-white font-semibold shadow-sm hover:bg-[#5C230A] transition"
+                  >
+                    Rezerwuj stolik
+                  </button>
+                  <a
+                    href="#nasza-historia"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="block rounded-2xl px-4 py-3 bg-white border border-amber-900/10 text-[#4A2E1A] font-semibold shadow-sm hover:bg-amber-50 transition"
+                  >
+                    Nasza historia
+                  </a>
+                </nav>
+
+                <div className="bg-white rounded-3xl border border-amber-900/10 p-4 shadow-sm">
+                  <div className="flex items-center justify-between mb-4">
+                    <div>
+                      <p className="text-xs uppercase tracking-[0.2em] text-amber-900/50 font-bold">Twoje konto</p>
+                      <p className="text-base font-semibold text-[#4A2E1A]">{user ? (user.displayName || 'Konto') : 'Gość'}</p>
+                    </div>
+                    <div className="text-sm text-[#78350F] font-bold">{cartItemsCount}+</div>
+                  </div>
+                  {user ? (
+                    <div className="space-y-3">
+                      <div className="rounded-2xl bg-amber-50 p-3 text-sm text-amber-950/85">
+                        {reservations.filter(r => r.status !== 'cancelled').length} rezerwacje • {orders.filter(o => o.status === 'pending' || o.status === 'preparing').length} aktywne zamówienia
+                      </div>
+                      {userRole === 'admin' && (
+                        <button
+                          onClick={() => {
+                            setMobileMenuOpen(false);
+                            setShowAdminPanel(!showAdminPanel);
+                            setTimeout(() => {
+                              const el = document.getElementById('admin-panel-section');
+                              el?.scrollIntoView({ behavior: 'smooth' });
+                            }, 100);
+                          }}
+                          className="w-full rounded-2xl px-4 py-3 bg-amber-100 text-[#78350F] font-semibold hover:bg-amber-200 transition"
+                        >
+                          Panel admina
+                        </button>
+                      )}
+                      <button
+                        onClick={async () => {
+                          setMobileMenuOpen(false);
+                          await logout();
+                        }}
+                        className="w-full rounded-2xl px-4 py-3 bg-red-100 text-red-700 font-semibold hover:bg-red-200 transition"
+                      >
+                        Wyloguj się
+                      </button>
+                    </div>
+                  ) : (
+                    <button
+                      onClick={() => {
+                        setMobileMenuOpen(false);
+                        onOpenAuth();
+                      }}
+                      className="w-full rounded-2xl px-4 py-3 bg-[#78350F] text-white font-semibold hover:bg-[#5C230A] transition"
+                    >
+                      Zaloguj się
+                    </button>
+                  )}
+                </div>
+
+                <div className="grid gap-3 text-sm">
+                  <button
+                    onClick={() => {
+                      setMobileMenuOpen(false);
+                      onOpenCart();
+                    }}
+                    className="w-full rounded-2xl px-4 py-3 bg-white border border-amber-900/10 text-[#4A2E1A] font-semibold hover:bg-amber-50 transition flex items-center justify-between"
+                  >
+                    <span>Koszyk</span>
+                    <span className="text-amber-800 font-bold">{cartItemsCount}</span>
+                  </button>
+                  <div className="rounded-2xl bg-amber-100 px-4 py-3 text-[#78350F] font-semibold">
+                    Mobilne menu w stylu apki — szybkie, eleganckie i wygodne.
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
     </header>
   );
 }

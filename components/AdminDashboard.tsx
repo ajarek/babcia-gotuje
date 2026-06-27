@@ -10,6 +10,7 @@ import {
   Clock, 
   CheckCircle, 
   XCircle, 
+  Trash2, 
   DollarSign, 
   User, 
   MapPin, 
@@ -25,6 +26,8 @@ export default function AdminDashboard() {
     allReservations, 
     updateOrderStatus, 
     updateReservationStatus, 
+    deleteOrder,
+    deleteReservation,
     addCustomMenuItem,
     menu
   } = useRestaurant();
@@ -89,6 +92,26 @@ export default function AdminDashboard() {
     } catch (err: any) {
       console.error(err);
       setSubmitError(err.message || 'Wystąpił błąd podczas dodawania dania.');
+    }
+  };
+
+  const handleDeleteOrder = async (orderId: string) => {
+    if (!confirm('Czy na pewno chcesz trwale usunąć to zamówienie?')) return;
+    try {
+      await deleteOrder(orderId);
+    } catch (err) {
+      console.error('Usuwanie zamówienia nie powiodło się:', err);
+      alert('Nie udało się usunąć zamówienia. Spróbuj ponownie.');
+    }
+  };
+
+  const handleDeleteReservation = async (resId: string) => {
+    if (!confirm('Czy na pewno chcesz trwale usunąć tę rezerwację?')) return;
+    try {
+      await deleteReservation(resId);
+    } catch (err) {
+      console.error('Usuwanie rezerwacji nie powiodło się:', err);
+      alert('Nie udało się usunąć rezerwacji. Spróbuj ponownie.');
     }
   };
 
@@ -250,6 +273,13 @@ export default function AdminDashboard() {
                                 <XCircle size={15} />
                               </button>
                             )}
+                            <button
+                              onClick={() => handleDeleteOrder(order.id)}
+                              className="p-1.5 bg-rose-100 hover:bg-rose-200 text-rose-800 rounded-lg text-xs transition"
+                              title="Usuń zamówienie"
+                            >
+                              <Trash2 size={15} />
+                            </button>
                           </div>
                         </td>
                       </tr>
@@ -333,6 +363,13 @@ export default function AdminDashboard() {
                                 <XCircle size={15} />
                               </button>
                             )}
+                            <button
+                              onClick={() => handleDeleteReservation(res.id)}
+                              className="p-1.5 bg-rose-100 hover:bg-rose-200 text-rose-800 rounded-lg text-xs transition"
+                              title="Usuń rezerwację"
+                            >
+                              <Trash2 size={15} />
+                            </button>
                           </div>
                         </td>
                       </tr>

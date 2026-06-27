@@ -22,7 +22,8 @@ import {
   where, 
   orderBy, 
   onSnapshot, 
-  updateDoc 
+  updateDoc,
+  deleteDoc 
 } from 'firebase/firestore';
 import { auth, db } from '@/lib/firebase';
 
@@ -99,6 +100,8 @@ interface RestaurantContextType {
   signupWithEmail: (name: string, email: string, pass: string) => Promise<void>;
   updateOrderStatus: (orderId: string, status: Order['status']) => Promise<void>;
   updateReservationStatus: (resId: string, status: Reservation['status']) => Promise<void>;
+  deleteOrder: (orderId: string) => Promise<void>;
+  deleteReservation: (resId: string) => Promise<void>;
   addCustomMenuItem: (item: Omit<MenuItem, 'id'>) => Promise<void>;
   deleteMenuItem: (itemId: string) => Promise<void>;
 }
@@ -601,6 +604,18 @@ export function RestaurantProvider({ children }: { children: React.ReactNode }) 
     await updateDoc(docRef, { status });
   };
 
+  const deleteOrder = async (orderId: string) => {
+    if (userRole !== 'admin') throw new Error('Brak uprawnień administratora');
+    const docRef = doc(db, 'orders', orderId);
+    await deleteDoc(docRef);
+  };
+
+  const deleteReservation = async (resId: string) => {
+    if (userRole !== 'admin') throw new Error('Brak uprawnień administratora');
+    const docRef = doc(db, 'reservations', resId);
+    await deleteDoc(docRef);
+  };
+
   const addCustomMenuItem = async (item: Omit<MenuItem, 'id'>) => {
     if (userRole !== 'admin') throw new Error('Brak uprawnień administratora');
     await addDoc(collection(db, 'menu'), item);
@@ -646,6 +661,8 @@ export function RestaurantProvider({ children }: { children: React.ReactNode }) 
       signupWithEmail,
       updateOrderStatus,
       updateReservationStatus,
+      deleteOrder,
+      deleteReservation,
       addCustomMenuItem,
       deleteMenuItem
     }}>
