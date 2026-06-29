@@ -14,6 +14,20 @@ export default function Hero({ onOpenReservation }: HeroProps) {
   const [isMuted, setIsMuted] = useState(true)
   const videoRef = React.useRef<HTMLVideoElement | null>(null)
 
+  const toggleAudio = () => {
+    const videoElement = videoRef.current
+    if (!videoElement) return
+
+    const nextMuted = !videoElement.muted
+    videoElement.muted = nextMuted
+    videoElement.volume = 1
+    setIsMuted(nextMuted)
+
+    videoElement.play().catch(() => {
+      // Ignore autoplay restrictions; the user interaction is already present.
+    })
+  }
+
   React.useEffect(() => {
     if (!hasPlayedOnce && videoRef.current) {
       videoRef.current
@@ -153,17 +167,7 @@ export default function Hero({ onOpenReservation }: HeroProps) {
 
               <button
                 type='button'
-                onClick={() => {
-                  setIsMuted((prevMuted) => !prevMuted)
-                  if (videoRef.current) {
-                    videoRef.current.muted = !isMuted
-                    videoRef.current
-                      .play()
-                      .catch(() => {
-                        // ignore
-                      })
-                  }
-                }}
+                onClick={toggleAudio}
                 className='absolute top-4 right-4 z-20 rounded-full bg-white/90 border border-amber-900/15 px-4 py-2 text-xs font-semibold text-amber-950 shadow-sm hover:bg-white'
               >
                 {isMuted ? "Włącz dźwięk" : "Wyłącz dźwięk"}
